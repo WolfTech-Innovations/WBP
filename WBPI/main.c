@@ -1,5 +1,5 @@
 /*
- * WBPI - Wolf Binary Packaging Installer v0.2
+ * WBPI - Wolf Binary Packaging Installer v0.3
  * by WolfTech Innovations
  *
  * A simple package manager for WBP files written in C.
@@ -52,7 +52,7 @@ void install_package(const char *wbp_file) {
     fclose(info);
 
     char name[128];
-    sscanf(buf, "{\"package\": \"%127[^"]", name);
+    sscanf(buf, "{\"package\": \"%127[^\"]", name);
 
     char installed_meta[512];
     snprintf(installed_meta, sizeof(installed_meta), "%s/%s.json", INSTALLED_PATH, name);
@@ -126,17 +126,22 @@ void show_info(const char *name) {
 
 void create_template(const char *name) {
     char cmd[1024];
-    snprintf(cmd, sizeof(cmd), "mkdir -p %s/CONTROL %s/DATA", name, name);
+
+    // Create CONTROL and DATA directories
+    snprintf(cmd, sizeof(cmd), "mkdir -p '%s/CONTROL' '%s/DATA'", name, name);
     system(cmd);
 
+    // Create info.json file
     snprintf(cmd, sizeof(cmd),
-        "echo '{\\"package\\": \\\"%s\\\", \\\"version\\\": \\\"1.0\\\", \\\"description\\\": \\\"Sample WBP Package\\\"}' > %s/CONTROL/info.json",
-        name, name);
+             "echo '{\"package\": \"%s\", \"version\": \"1.0\", \"description\": \"Sample WBP Package\"}' > '%s/CONTROL/info.json'",
+             name, name);
     system(cmd);
 
-    snprintf(cmd, sizeof(cmd), "touch %s/CONTROL/preinst.sh %s/CONTROL/postinst.sh", name, name);
+    // Create preinst.sh and postinst.sh
+    snprintf(cmd, sizeof(cmd), "touch '%s/CONTROL/preinst.sh' '%s/CONTROL/postinst.sh'", name, name);
     system(cmd);
 
+    // Confirmation message
     printf("[WBPI] Template created at %s\n", name);
 }
 
